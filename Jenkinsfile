@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -6,38 +7,36 @@ pipeline {
     }
 
     stages {
-        stage('Cloner le dépôt') {
+
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/marmouchaziz749-commits/3Lig5DEVOPS.git',
+                echo 'Cloning GitHub repository...'
+                git url: 'https://github.com/marmouchaz749-commits/3Lig5DEVOPS.git',
                     branch: 'main'
             }
         }
 
-        stage('Étape 1 : Vérification du dépôt') {
+        stage('Build') {
             steps {
-                bat 'echo === Étape 1 : Vérification du dépôt ==='
-                bat 'git status'
-            }
-        }
-
-        stage('Étape 2 : Afficher le contenu du projet') {
-            steps {
-                bat 'echo === Étape 2 : Afficher le contenu du projet ==='
+                echo 'Building the project...'
                 bat 'dir'
+                bat 'echo Build completed successfully'
             }
         }
 
-        stage('Étape 3 : Simuler un déploiement local') {
+        stage('Test') {
             steps {
-                bat 'echo === Étape 3 : Simuler un déploiement local ==='
-                bat 'echo Le fichier index.html est prêt à être affiché'
+                echo 'Testing project files...'
+                bat 'if not exist jk.html exit /b 1'
+                bat 'if not exist jk.css exit /b 1'
+                bat 'echo Tests passed successfully'
             }
         }
 
-        stage('Étape 4 : Fin du build') {
+        stage('Deploy') {
             steps {
-                bat 'echo === Étape 4 : Fin du build ==='
-                bat 'echo SUCCESS'
+                echo 'Deploying the project...'
+                bat 'echo Project is ready for deployment'
             }
         }
     }
