@@ -1,4 +1,5 @@
 
+
 pipeline {
     agent any
 
@@ -10,9 +11,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo 'Cloning GitHub repository...'
-                git url: 'https://github.com/marmouchaz749-commits/3Lig5DEVOPS.git',
-                    branch: 'main'
+                echo 'Repository cloned successfully from GitHub!'
+                bat 'git status'
             }
         }
 
@@ -50,3 +50,4 @@ pipeline {
         }
     }
 }
+
