@@ -35,6 +35,29 @@ pipeline {
                 '''
             }
         }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat '''
+                        @echo off
+                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        if errorlevel 1 exit /b 1
+
+                        docker tag monapp:dev %DOCKER_USER%/monapp:latest
+                        docker push %DOCKER_USER%/monapp:latest
+
+                        if errorlevel 1 exit /b 1
+
+                        docker logout
+                    '''
+                }
+            }
+        }
     }
 }
 
