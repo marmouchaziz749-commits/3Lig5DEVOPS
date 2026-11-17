@@ -1,31 +1,22 @@
 
-pipeline {
-    agent any
+stage('Smoke Test') {
+    steps {
+        bat '''
+            @echo off
+            docker rm -f monapp_test 2>NUL
+            docker run -d -p 8086:80 --name monapp_test monapp:dev
+            if errorlevel 1 exit /b 1
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+            powershell -NoProfile -Command "Start-Sleep -Seconds 5"
 
-        stage('Docker Build') {
-            steps {
-                bat 'docker build -t monapp:dev .'
-            }
-        }
+            curl.exe --fail --silent --show-error http://localhost:8086/
+            if errorlevel 1 (
+                docker rm -f monapp_test
+                exit /b 1
+            )
 
-        stage('Smoke Test') {
-            steps {
-                bat '''
-                    docker rm -f monapp_test 2>NUL
-                    docker run -d -p 8081:80 --name monapp_test monapp:dev
-                    timeout /t 5 /nobreak
-                    curl.exe -f http://localhost:8081/
-                    docker rm -f monapp_test
-                '''
-            }
-        }
+            docker rm -f monapp_test
+        '''
     }
 }
 
