@@ -1,53 +1,32 @@
 
-
 pipeline {
     agent any
 
-    options {
-        timestamps()
-    }
-
     stages {
-
         stage('Checkout') {
             steps {
-                echo 'Repository cloned successfully from GitHub!'
-                bat 'git status'
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Docker Build') {
             steps {
-                echo 'Building the project...'
-                bat 'dir'
-                bat 'echo Build completed successfully'
+                bat 'docker build -t monapp:dev .'
             }
         }
 
-        stage('Test') {
+        stage('Smoke Test') {
             steps {
-                echo 'Testing project files...'
-                bat 'if not exist jk.html exit /b 1'
-                bat 'if not exist jk.css exit /b 1'
-                bat 'echo Tests passed successfully'
+                bat '''
+                    docker rm -f monapp_test 2>NUL
+                    docker run -d -p 8081:80 --name monapp_test monapp:dev
+                    timeout /t 5 /nobreak
+                    curl.exe -f http://localhost:8081/
+                    docker rm -f monapp_test
+                '''
             }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying the project...'
-                bat 'echo Project is ready for deployment'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build OK'
-        }
-        failure {
-            echo 'Build KO'
         }
     }
 }
+
 
